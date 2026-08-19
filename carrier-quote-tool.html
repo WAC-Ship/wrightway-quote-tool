@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Carrier Quote Request Builder</title>
+<style>
+  :root{
+    --navy:#16233a;
+    --navy-light:#223353;
+    --rust:#c1652f;
+    --rust-dark:#a3521f;
+    --paper:#f6f3ee;
+    --line:#dcd5c9;
+    --ink:#20232b;
+    --ink-soft:#5b6270;
+    --ok:#3f7a55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:22px 28px;
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:4px solid var(--rust);
+  }
+  header h1{
+    font-size:19px;
+    margin:0;
+    letter-spacing:.02em;
+    font-weight:700;
+  }
+  header span{
+    color:#b9c2d4;
+    font-size:13px;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:26px 28px 60px;
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap:22px;
+  }
+  @media (max-width: 900px){
+    .wrap{grid-template-columns:1fr;}
+  }
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+  }
+  .card h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:10px;
+  }
+  .origin-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:16px;
+    font-size:14px;
+  }
+  .origin-row select, .origin-row input{
+    font-size:14px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    padding:4px 6px;
+  }
+  td{
+    padding:4px 6px;
+    vertical-align:top;
+  }
+  input[type=text]{
+    width:100%;
+    padding:7px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:13.5px;
+    background:#fdfcfa;
+  }
+  input[type=text]:focus, select:focus{
+    outline:2px solid var(--rust);
+    outline-offset:1px;
+  }
+  .col-city{width:22%;}
+  .col-state{width:10%;}
+  .col-zip{width:14%;}
+  .col-veh{width:42%;}
+  .col-del{width:6%; text-align:center;}
+  .del-btn{
+    background:none;
+    border:none;
+    color:#b23b3b;
+    cursor:pointer;
+    font-size:16px;
+    line-height:1;
+    padding:6px;
+  }
+  .del-btn:hover{color:#7e1f1f;}
+  .row-actions{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+  }
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .btn{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:9px 16px;
+    border-radius:7px;
+    font-size:13.5px;
+    font-weight:600;
+  }
+  .btn:hover{background:var(--navy-light);}
+  .btn-outline{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:9px 16px;
+    border-radius:7px;
+    font-size:13.5px;
+  }
+  .btn-outline:hover{border-color:var(--ink-soft);}
+  .btn-rust{
+    background:var(--rust);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:7px;
+    font-size:14px;
+    font-weight:700;
+    width:100%;
+    margin-top:16px;
+  }
+  .btn-rust:hover{background:var(--rust-dark);}
+  .carrier-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .carrier-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fdfcfa;
+  }
+  .carrier-item input[type=checkbox]{
+    width:16px;height:16px;
+  }
+  .carrier-item .meta{
+    flex:1;
+    font-size:13.5px;
+  }
+  .carrier-item .meta b{display:block;font-size:13.5px;}
+  .carrier-item .meta span{color:var(--ink-soft); font-size:12px;}
+  .carrier-item .rm{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:13px;
+  }
+  .add-carrier{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+  }
+  .add-carrier input{flex:1;}
+  .field-label{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    display:block;
+  }
+  .signature-box{margin-top:14px;}
+  .subject-box{margin-bottom:14px;}
+  .output-section{margin-top:22px;}
+  .output-card{
+    border:1px solid var(--line);
+    border-radius:9px;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .output-head{
+    background:var(--paper);
+    padding:10px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+    font-size:13.5px;
+    font-weight:700;
+  }
+  .output-head .actions{display:flex; gap:8px;}
+  .output-head button{
+    font-size:12px;
+    padding:6px 11px;
+    border-radius:6px;
+  }
+  .copy-btn{
+    background:var(--ok);
+    color:#fff;
+    border:none;
+  }
+  .copy-btn.copied{background:var(--ink-soft);}
+  .mailto-btn{
+    background:none;
+    border:1px solid var(--navy);
+    color:var(--navy);
+  }
+  textarea{
+    width:100%;
+    border:none;
+    padding:14px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size:13px;
+    line-height:1.55;
+    resize:vertical;
+    min-height:160px;
+    color:var(--ink);
+  }
+  .empty-note{
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:20px 0;
+    text-align:center;
+  }
+  .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Carrier Quote Request Builder</h1>
+  <span>Wright Way Auto Carriers</span>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Move Details</h2>
+
+    <div class="origin-row">
+      <label class="field-label" style="margin:0;">Direction</label>
+      <select id="direction">
+        <option value="from">From Tacoma to →</option>
+        <option value="to">To Tacoma from →</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="col-city">City</th>
+          <th class="col-state">State</th>
+          <th class="col-zip">Zip (opt.)</th>
+          <th class="col-veh">Vehicle(s) — separate multiple with a comma</th>
+          <th class="col-del"></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div class="row-actions">
+      <button class="btn-outline" onclick="addRow()">+ Add destination</button>
+      <button class="btn-outline" onclick="clearAll()">Clear all</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Send To</h2>
+
+    <div class="carrier-list" id="carrierList"></div>
+
+    <div class="add-carrier">
+      <input type="text" id="newCarrierName" placeholder="Contact name">
+      <input type="text" id="newCarrierEmail" placeholder="email@example.com">
+      <button class="btn-outline" onclick="addCarrier()">+ Add</button>
+    </div>
+
+    <div class="signature-box">
+      <label class="field-label">Subject line</label>
+      <input type="text" id="subjectLine" value="Quote Request - Tacoma">
+    </div>
+
+    <div class="signature-box">
+      <label class="field-label">Your sign-off name (optional)</label>
+      <input type="text" id="yourName" placeholder="e.g. Alex">
+    </div>
+
+    <button class="btn-rust" onclick="generate()">Generate Emails</button>
+    <div class="hint">Emails are drafted here for you to review — nothing sends automatically.</div>
+  </div>
+
+</div>
+
+<div class="wrap" style="grid-template-columns:1fr; padding-top:0;">
+  <div class="output-section" id="output"></div>
+</div>
+
+<script>
+let rowCount = 0;
+let carriers = [];
+
+const DEFAULT_CARRIERS = [
+  {name:"Kris (LBC)", email:"krismarler@leebowecompany.com", checked:true},
+  {name:"Mike (Crown)", email:"crownauto.dispatch@gmail.com", checked:true},
+  {name:"JR Trans Dispatch", email:"dispatch@jrtransinc.com", checked:true}
+];
+
+async function loadCarriers(){
+  try{
+    const result = await window.storage.get('carrier-list', false);
+    carriers = result ? JSON.parse(result.value) : DEFAULT_CARRIERS.slice();
+  }catch(e){
+    carriers = DEFAULT_CARRIERS.slice();
+  }
+  renderCarriers();
+}
+
+async function saveCarriers(){
+  try{
+    await window.storage.set('carrier-list', JSON.stringify(carriers), false);
+  }catch(e){
+    console.error('Could not save carrier list', e);
+  }
+}
+
+function renderCarriers(){
+  const list = document.getElementById('carrierList');
+  list.innerHTML = '';
+  carriers.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'carrier-item';
+    div.innerHTML = `
+      <input type="checkbox" ${c.checked ? 'checked' : ''} onchange="toggleCarrier(${i})">
+      <div class="meta"><b>${escapeHtml(c.name)}</b><span>${escapeHtml(c.email)}</span></div>
+      <button class="rm" onclick="removeCarrier(${i})" title="Remove">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleCarrier(i){
+  carriers[i].checked = !carriers[i].checked;
+  saveCarriers();
+}
+
+function removeCarrier(i){
+  carriers.splice(i,1);
+  renderCarriers();
+  saveCarriers();
+}
+
+function addCarrier(){
+  const name = document.getElementById('newCarrierName').value.trim();
+  const email = document.getElementById('newCarrierEmail').value.trim();
+  if(!name || !email){ return; }
+  carriers.push({name, email, checked:true});
+  document.getElementById('newCarrierName').value = '';
+  document.getElementById('newCarrierEmail').value = '';
+  renderCarriers();
+  saveCarriers();
+}
+
+function addRow(city='', state='', zip='', vehicles=''){
+  rowCount++;
+  const id = 'row' + rowCount;
+  const tr = document.createElement('tr');
+  tr.id = id;
+  tr.innerHTML = `
+    <td class="col-city"><input type="text" data-field="city" value="${escapeAttr(city)}" placeholder="Supply"></td>
+    <td class="col-state"><input type="text" data-field="state" value="${escapeAttr(state)}" placeholder="NC" maxlength="2"></td>
+    <td class="col-zip"><input type="text" data-field="zip" value="${escapeAttr(zip)}" placeholder="28462"></td>
+    <td class="col-veh"><input type="text" data-field="vehicles" value="${escapeAttr(vehicles)}" placeholder="2012 Nissan Frontier, 2023 Porsche Macan"></td>
+    <td class="col-del"><button class="del-btn" onclick="removeRow('${id}')">✕</button></td>
+  `;
+  document.getElementById('rows').appendChild(tr);
+}
+
+function removeRow(id){
+  const el = document.getElementById(id);
+  if(el) el.remove();
+}
+
+function clearAll(){
+  document.getElementById('rows').innerHTML = '';
+  document.getElementById('output').innerHTML = '';
+  addRow();
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escapeAttr(s){
+  return escapeHtml(s).replace(/"/g,'&quot;');
+}
+
+function buildLines(){
+  const rows = document.querySelectorAll('#rows tr');
+  const direction = document.getElementById('direction').value;
+  const lines = [];
+  rows.forEach(row => {
+    const city = row.querySelector('[data-field=city]').value.trim();
+    const state = row.querySelector('[data-field=state]').value.trim().toUpperCase();
+    const zip = row.querySelector('[data-field=zip]').value.trim();
+    const vehiclesRaw = row.querySelector('[data-field=vehicles]').value.trim();
+    if(!city && !vehiclesRaw) return;
+
+    const vehicles = vehiclesRaw.split(',').map(v => v.trim()).filter(Boolean);
+    const vehicleText = vehicles.join(' & ');
+    const unitNote = vehicles.length > 1 ? ` (${numberWord(vehicles.length)} units)` : '';
+
+    let destPart = city;
+    if(state) destPart += `, ${state}`;
+    if(zip) destPart += ` ${zip}`;
+
+    const line = direction === 'from'
+      ? `Tacoma - ${destPart}${unitNote} - ${vehicleText}`
+      : `${destPart} - Tacoma${unitNote} - ${vehicleText}`;
+
+    lines.push(line);
+  });
+  return lines;
+}
+
+function numberWord(n){
+  const words = ['zero','one','two','three','four','five','six','seven','eight','nine','ten'];
+  return words[n] || String(n);
+}
+
+function generate(){
+  const lines = buildLines();
+  const output = document.getElementById('output');
+  output.innerHTML = '';
+
+  if(lines.length === 0){
+    output.innerHTML = '<div class="empty-note">Add at least one destination with a vehicle to generate emails.</div>';
+    return;
+  }
+
+  const subject = document.getElementById('subjectLine').value.trim() || 'Quote Request';
+  const yourName = document.getElementById('yourName').value.trim();
+
+  const selected = carriers.filter(c => c.checked);
+  if(selected.length === 0){
+    output.innerHTML = '<div class="empty-note">Select at least one carrier to send to.</div>';
+    return;
+  }
+
+  selected.forEach((carrier, idx) => {
+    const firstName = carrier.name.split(' ')[0];
+    let body = `Hi ${firstName},\nCan you quote below:\n`;
+    lines.forEach(l => body += `${l}\n`);
+    body += `\nThanks!`;
+    if(yourName) body += `\n${yourName}`;
+
+    const card = document.createElement('div');
+    card.className = 'output-card';
+    const taId = `out-${idx}`;
+    card.innerHTML = `
+      <div class="output-head">
+        <span>${escapeHtml(carrier.name)} — ${escapeHtml(carrier.email)}</span>
+        <div class="actions">
+          <button class="copy-btn" onclick="copyText('${taId}', this)">Copy</button>
+          <button class="mailto-btn" onclick="openMailto('${escapeAttr(carrier.email)}', '${escapeAttr(subject)}', '${taId}')">Open in email</button>
+        </div>
+      </div>
+      <textarea id="${taId}">${body}</textarea>
+    `;
+    output.appendChild(card);
+  });
+}
+
+function copyText(id, btn){
+  const ta = document.getElementById(id);
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const original = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function openMailto(email, subject, taId){
+  const body = document.getElementById(taId).value;
+  const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = url;
+}
+
+// init
+loadCarriers();
+addRow('Supply','NC','28462','2012 Nissan Frontier, 2023 Porsche Macan');
+addRow('Manitowoc','WI','','2014 Toyota Tundra');
+</script>
+
+</body>
+</html>
